@@ -1,0 +1,83 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Socket.IO chat</title>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { 
+        font: 20px Helvetica, Arial white;
+        background-image: url("./public/whatsapp.jpg");
+       }
+      form { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; }
+      form input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
+      form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
+      #messages { list-style-type: none; margin: 0; padding: 0; }
+      #messages li { padding: 5px 10px; }
+      #messages li:nth-child(odd) { background: #eee; }
+    </style>
+  </head>
+  <body>
+    <div id="cont" style="padding: 3px"></div>
+    <ul id="messages"></ul>
+    <form action="">
+      <input id="m" autocomplete="off" /><button>Send</button>
+      <input type="file" id="siofu_input" />
+    </form>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/siofu/client.js"></script>
+<script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+<script>
+    $(function () {
+      var usuario=prompt("Introduce tu nombre");
+      var socket = io();
+      var users = [];
+      socket.emit('conect', usuario );
+      var socket = io.connect();
+      var uploader = new SocketIOFileUpload(socket);
+      uploader.listenOnInput(document.getElementById("siofu_input"));
+      $('form').submit(function(e){
+        e.preventDefault(); // pre vents page reloading
+        users[0]=usuario+": "+$('#m').val();
+        users[1]= usuario;
+        socket.emit('chat message', users);
+        $('#m').val('');
+        return false;
+      });
+      
+      $('input').keypress(function() {
+          socket.emit('escribiendo', usuario);
+        });
+     
+      socket.on('chat message', function(msg){
+        if(msg[1]==usuario){
+          $('#messages').append($('<li style="text-align:right; background-color: #A4F55F">').text(msg[0]));
+        }else{
+          $('#messages').append($('<li style="text-align:left">').text(msg[0]));
+        }
+        
+      });
+      socket.on('conectado', function(user){
+        $('#messages').append($('<li style="text-align:center; background-color: #E2CBFF">').text(user));
+      });
+      socket.on('usuarios', function(users){
+        $('#text').remove();
+        $('#cont').append($('<h3 id="text" style="text-align:center; color: #5A2CB6">').text(users));
+      });
+      var tm=null;
+      socket.on('escribiendo', function(user){
+
+        if(!tm){
+          $('#messages').append($('<li id="escribiendo" style="text-align:center; background-color: #DAFBFE">>').text(user+" esta escribiendo..."));
+        }else
+          clearTimeout(tm);
+
+        tm=setTimeout(function(){
+          tm=null;
+          $('#escribiendo').remove();
+        },2000);
+  
+      });
+    });
+  </script>
+  </body>
+</html>

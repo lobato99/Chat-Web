@@ -1,0 +1,9 @@
+vue 
+crear componente vgc -s nombreComponente
+correr proyecto npm run serve
+npm build
+
+angular
+crear componente crear componente ng generate component nombreComponente
+correr proyecto ng serve --open
+compilar ng build
